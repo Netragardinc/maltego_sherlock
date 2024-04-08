@@ -1,0 +1,21 @@
+FROM python:3.10-slim
+
+RUN apt-get update && apt-get install -y \
+    curl \
+    && apt-get upgrade -y \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app/sherlock/
+
+ENV SHERLOCK_VERSION 55c680fde1d6eb94e55870e1be6243c88732cea8
+
+RUN curl -sSL https://github.com/sherlock-project/sherlock/archive/$SHERLOCK_VERSION.tar.gz \
+	| tar -v -C /app/sherlock/ -xz --strip-components=1
+RUN pip install --no-cache-dir --upgrade -r requirements.txt
+
+WORKDIR /app/
+
+COPY . .
+RUN pip install --no-cache-dir --upgrade -r requirements.txt
+
+ENTRYPOINT ["python3", "project.py", "local", "sherlock"]
